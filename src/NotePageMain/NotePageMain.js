@@ -11,12 +11,16 @@ export default function NotePageMain(props) {
       {({notes}) => {
       const {noteId} = props.match.params
       const note = findNote(notes, noteId)
+      function handleRedirect(){
+        props.history.push(`/`)
+      }
       return ( 
       <>
       <Note
         id={note.id}
         name={note.name}
         modified={note.modified}
+        redirect={handleRedirect}
       />
        <div className='NotePageMain__content'>
         {note.content.split(/\n \r|\n/).map((para, i) =>

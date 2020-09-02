@@ -19,7 +19,24 @@ class App extends Component {
 
     componentDidMount() {
         // fake date loading from API call
-        setTimeout(() => this.setState(dummyStore), 600);
+        Promise.all([
+            fetch(`http://localhost:9090/notes`),
+            fetch(`http://localhost:9090/folders`)
+        ])
+        .then(([noteResponse, folderResponse]) => {
+            if(!noteResponse.ok)
+                return noteResponse.json().then(event => Promise.reject(event))
+            if(!folderResponse.ok)
+                return folderResponse.json().then(event => Promise.reject(event))
+            return Promise.all([noteResponse.json(), folderResponse.json()])
+        })
+        .then(([notes, folders]) => {
+            this.setState({
+                notes, folders
+            })
+        }).catch((e) => {
+            console.log(e.message);
+        })
     }
 
     renderNavRoutes() {
@@ -63,10 +80,32 @@ class App extends Component {
         );
     }
 
+   handleRemove = noteId => {
+    const newNotes = this.state.notes.filter(note => note.id !== noteId)    
+     console.log(newNotes)
+
+        fetch(`http://localhost:9090/notes/${noteId}`, {
+            method: 'DELETE', 
+            headers: {'content-type': 'application/json'}
+        })
+        .then(res => {
+            if(!res.ok)
+                return res.json().then(event => Promise.reject(event))
+            else    
+                return res.json();
+        })
+
+
+    this.setState({
+           notes: newNotes
+       })
+   }
+    
     render() {
         const contextValue = {
             notes: this.state.notes,
-            folders: this.state.folders
+            folders: this.state.folders,
+            handleRemove: this.handleRemove
         }
         return (
             <div className="App">
