@@ -4,12 +4,20 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import Note from '../Note/Note'
 import CircleButton from '../CircleButton/CircleButton'
 import './NoteListMain.css'
+import NotefulContext from '../NotefulContext'
+import { findNote, getNotesForFolder } from '../notes-helpers'
 
 export default function NoteListMain(props) {
   return (
     <section className='NoteListMain'>
+    <NotefulContext.Consumer>
+    {({notes}) => {
+        const { folderId } = props.match.params
+        const notesForFolder = getNotesForFolder(notes, folderId)
+    return (
+    <>
       <ul>
-        {props.notes.map(note =>
+        {notesForFolder.map(note =>
           <li key={note.id}>
             <Note
               id={note.id}
@@ -31,6 +39,10 @@ export default function NoteListMain(props) {
           Note
         </CircleButton>
       </div>
+    </>
+    )
+      }}
+    </NotefulContext.Consumer>
     </section>
   )
 }
